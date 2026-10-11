@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Planner - Task & Pomodoro Manager</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'><path d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/></svg>">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Header navigasi utama -->
+    <header>
+        <div class="logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" fill="#6366f1"/>
+            </svg>
+            Study<span>Planner</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#beranda" class="active">Beranda</a></li>
+                <li><a href="#fitur">Fitur</a></li>
+                <li><a href="#demo">Catat Tugas</a></li>
+                <li><a href="#pomodoro">Timer Fokus</a></li>
+                <li><a href="#tentang">Tentang</a></li>
+                <li><button id="dark-mode-btn" class="dark-btn" title="Ganti Tema">🌙</button></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="beranda" class="hero">
+        <div class="hero-content">
+            <h1>Atur Jadwal & Tugas Kuliah Tanpa Keteteran</h1>
+            <p>Platform pengingat tugas mahasiswa biar gak ada lagi cerita ngerjain tugas pake sistem kebut semalam (SKS).</p>
+            <div class="hero-buttons">
+                <a href="#demo" class="btn primary">Mulai Catat Tugas</a>
+                <a href="#pomodoro" class="btn secondary">Coba Timer Fokus</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <div class="card-preview">
+                <h3>📌 Tugas Terbaru</h3>
+                <p id="preview-task">Belum ada tugas yang dicatat.</p>
+                <div class="preview-info">
+                    <span id="preview-matkul">Matkul: -</span>
+                    <span class="badge" id="preview-priority">Prioritas: -</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="fitur" class="features">
+        <h2>Kenapa Pakai Web Ini?</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>⚡ Simpel & Cepat</h3>
+                <p>Nggak pake ribet bikin akun, tinggal buka langsung catat tugas.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🎯 Filter Prioritas</h3>
+                <p>Bisa tau mana tugas yang mendesak atau yang masih santai.</p>
+            </div>
+            <div class="feature-card">
+                <h3>⏱️ Timer Fokus (Pomodoro)</h3>
+                <p>Biar fokus belajar tanpa gampang terdistraksi HP.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="demo" class="demo-section">
+        <h2>Formulir Pengingat Tugas Kuliah</h2>
+        <p>Silakan masukkan detail tugas kuliahmu di sini:</p>
+        
+        <div class="task-container">
+            <form id="task-form">
+                <input type="hidden" id="task-edit-index" value="">
+                <div class="form-group">
+                    <label for="task-name">Nama Tugas</label>
+                    <input type="text" id="task-name" placeholder="Misal: Project Game / Laporan Praktikum..." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="task-matkul">Nama Mata Kuliah</label>
+                    <input type="text" id="task-matkul" placeholder="Misal: Pemrograman Web..." required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="task-priority">Prioritas</label>
+                        <select id="task-priority" required>
+                            <option value="Santai">☕ Santai</option>
+                            <option value="Biasa" selected>📌 Biasa</option>
+                            <option value="Mendesak">🔥 Mendesak</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="task-date">Deadline</label>
+                        <input type="date" id="task-date" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="task-notes">Catatan (Opsional)</label>
+                    <textarea id="task-notes" placeholder="Misal: Kumpul format PDF, lampirkan link GitHub..."></textarea>
+                </div>
+
+                <button type="submit" id="submit-btn" class="btn primary full-width">Simpan Tugas</button>
+            </form>
+
+            <div class="task-output-wrapper">
+                <h3>Daftar Tugas Kuliah</h3>
+                <ul id="task-list">
+                    <li class="empty-state">Belum ada tugas tercatat. Yuk mulai masukkan tugasmu!</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section id="pomodoro" class="pomodoro-section">
+        <h2>Timer Fokus Belajar (Pomodoro)</h2>
+        <p>Klik langsung pada angka timer di bawah kalau mau ganti durasi (misal diketik 30:00)!</p>
+        
+        <div class="pomodoro-card">
+            <div class="timer-display" id="timer-display" contenteditable="true" title="Klik buat ganti waktu">25:00</div>
+            
+            <div class="timer-controls">
+                <button id="start-timer" class="btn primary">Mulai</button>
+                <button id="pause-timer" class="btn secondary">Jeda</button>
+                <button id="reset-timer" class="btn danger">Reset</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="tentang" class="about">
+        <h2>Tentang Study Planner</h2>
+        <div class="about-content">
+            <p><strong>Study Planner</strong> adalah aplikasi web manajemen tugas kuliah dan produktivitas yang dirancang untuk membantu mahasiswa mengelola jadwal secara efektif. Project ini dikembangkan menggunakan HTML5, CSS3, dan Vanilla JavaScript tanpa bantuan framework eksternal.</p>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Study Planner. All rights reserved.</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
