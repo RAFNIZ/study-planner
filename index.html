@@ -37,7 +37,7 @@
             <p>Platform pengingat tugas mahasiswa biar gak ada lagi cerita ngerjain tugas pake sistem kebut semalam (SKS).</p>
             
             <!-- Widget Target Ujian -->
-            <div class="exam-countdown-box" id="edit-uts-btn" title="Klik untuk mengubah jadwal ujian">
+            <div class="exam-countdown-box" id="open-uts-modal" title="Klik untuk mengubah jadwal ujian">
                 <div class="exam-info-text">
                     <span class="exam-label">🎯 Target UTS / Ujian:</span>
                     <span id="countdown-timer" class="exam-timer">Memuat...</span>
@@ -59,6 +59,32 @@
             </div>
         </div>
     </section>
+
+    <!-- Modal Custom untuk Ubah Tanggal UTS -->
+    <div class="modal-overlay" id="uts-modal">
+        <div class="modal-card">
+            <h3>Atur Tanggal Ujian / UTS</h3>
+            <p>Pilih tanggal pelaksanaan ujian atau UTS kamu agar countdown akurat.</p>
+            <div class="form-group" style="margin-top: 15px;">
+                <label for="modal-uts-date">Tanggal Ujian</label>
+                <input type="date" id="modal-uts-date" class="modal-date-input">
+            </div>
+            <div class="modal-buttons">
+                <button type="button" id="close-uts-modal" class="btn secondary">Batal</button>
+                <button type="button" id="save-uts-date" class="btn primary">Simpan Tanggal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Custom untuk Peringatan Keamanan -->
+    <div class="modal-overlay" id="security-modal">
+        <div class="modal-card security-card">
+            <div class="security-icon">🔒</div>
+            <h3>Protected Content</h3>
+            <p id="security-message">Akses klik kanan dan inspeksi elemen dibatasi demi keamanan kode sumber aplikasi.</p>
+            <button type="button" id="close-security-modal" class="btn primary full-width" style="margin-top: 15px;">Mengerti</button>
+        </div>
+    </div>
 
     <section id="fitur" class="features">
         <h2>Kenapa Pakai Web Ini?</h2>
@@ -145,6 +171,7 @@
         </div>
     </section>
 
+    <!-- Pomodoro Section -->
     <section id="pomodoro" class="pomodoro-section">
         <h2>Timer Fokus Belajar (Pomodoro)</h2>
         <p>Gunakan timer ini untuk menjaga fokus belajar tanpa terdistraksi.</p>

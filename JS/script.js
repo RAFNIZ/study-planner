@@ -1,7 +1,16 @@
-// Proteksi Dasar & Keamanan Kode
+// Proteksi Dasar & Keamanan Kode dengan Custom Modal
+function showSecurityModal(msg) {
+    document.getElementById('security-message').textContent = msg;
+    document.getElementById('security-modal').classList.add('active');
+}
+
+document.getElementById('close-security-modal').addEventListener('click', () => {
+    document.getElementById('security-modal').classList.remove('active');
+});
+
 document.addEventListener('contextmenu', function(e) {
     e.preventDefault();
-    alert("Protected Content: Hayo mau ngapain anda");
+    showSecurityModal("Akses klik kanan dibatasi demi keamanan kode sumber aplikasi.");
 });
 
 document.addEventListener('keydown', function(e) {
@@ -11,7 +20,7 @@ document.addEventListener('keydown', function(e) {
         (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c'))
     ) {
         e.preventDefault();
-        alert("Akses dibatasi demi keamanan kode sumber.");
+        showSecurityModal("Akses inspeksi elemen dan shortcut dibatasi demi keamanan kode sumber.");
         return false;
     }
 });
@@ -47,23 +56,30 @@ darkModeBtn.addEventListener('click', function() {
     }
 });
 
-// Load data tugas dari LocalStorage
 let dataTugas = JSON.parse(localStorage.getItem('study_planner_tasks')) || [];
 
 let targetUtsDate = localStorage.getItem('uts_target_date') || "2026-10-25";
+const utsModal = document.getElementById('uts-modal');
+const modalUtsDateInput = document.getElementById('modal-uts-date');
 
-document.getElementById('edit-uts-btn').addEventListener('click', () => {
-    let inputBaru = prompt("Masukkan tanggal target Ujian/UTS (Format: YYYY-MM-DD):", targetUtsDate);
-    if (inputBaru) {
-        let parsed = Date.parse(inputBaru);
-        if (!isNaN(parsed)) {
-            targetUtsDate = inputBaru;
-            localStorage.setItem('uts_target_date', targetUtsDate);
-            updateCountdown();
-            alert("Tanggal ujian berhasil diperbarui!");
-        } else {
-            alert("Format tanggal salah! Gunakan format YYYY-MM-DD (Contoh: 2026-10-25)");
-        }
+document.getElementById('open-uts-modal').addEventListener('click', () => {
+    modalUtsDateInput.value = targetUtsDate;
+    utsModal.classList.add('active');
+});
+
+document.getElementById('close-uts-modal').addEventListener('click', () => {
+    utsModal.classList.remove('active');
+});
+
+document.getElementById('save-uts-date').addEventListener('click', () => {
+    let selectedDate = modalUtsDateInput.value;
+    if (selectedDate) {
+        targetUtsDate = selectedDate;
+        localStorage.setItem('uts_target_date', targetUtsDate);
+        updateCountdown();
+        utsModal.classList.remove('active');
+    } else {
+        alert("Silakan pilih tanggal yang valid.");
     }
 });
 
@@ -210,7 +226,6 @@ function tampilkanTugas() {
         listTugas.appendChild(li);
     });
 
-    // RENDER SEMUA TUGAS KULIAH KE CARD PREVIEW DI HERO (DENGAN SCROLL)
     previewActiveList.innerHTML = "";
     let tugasKuliahAktif = dataTugas.filter(t => {
         let m = t.matkul.toLowerCase();
@@ -262,7 +277,6 @@ window.hapusTugas = function(idx) {
     simpanDanTampilkan();
 }
 
-// EXPORT & IMPORT JSON
 document.getElementById('export-btn').addEventListener('click', () => {
     let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataTugas, null, 2));
     let downloadAnchor = document.createElement('a');
@@ -348,7 +362,7 @@ function playLofiChill(type) {
             osc.frequency.setValueAtTime(freq / (type === 'rain' ? 1 : 2), audioCtx.currentTime);
 
             filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(350, audioCtx.currentTime);
+            filter.frequency.setValueAtTime(350, audioCtx.currentTime); 
 
             gain.gain.setValueAtTime(0.0, audioCtx.currentTime);
             gain.gain.linearRampToValueAtTime(0.025, audioCtx.currentTime + 1.2); 
