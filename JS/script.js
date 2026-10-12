@@ -1,4 +1,55 @@
-// Proteksi Dasar & Keamanan Kode dengan Custom Modal
+// --- FITUR NO.6: PUSH NOTIFICATION & TOAST REMINDER ---
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast`;
+    toast.innerHTML = `<span>${type === 'warning' ? '⚠️' : '🔔'}</span> <div>${message}</div>`;
+    
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 4500);
+}
+
+// Request Notifikasi Browser
+if ("Notification" in window && Notification.permission === "default") {
+    Notification.requestPermission();
+}
+
+function triggerPushNotification(title, body) {
+    if ("Notification" in window && Notification.permission === "granted") {
+        new Notification(title, { body: body, icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%236366f1"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>' });
+    }
+}
+
+function checkDeadlineReminders() {
+    let tasks = JSON.parse(localStorage.getItem('study_planner_tasks')) || [];
+    let today = new Date();
+    today.setHours(0,0,0,0);
+
+    tasks.forEach(t => {
+        if (!t.isCompleted && t.deadline) {
+            let deadlineDate = new Date(t.deadline + "T00:00:00");
+            let diffDays = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 1) {
+                let msg = `Deadline tugas "${t.nama}" (${t.matkul}) tinggal BESOK!`;
+                showToast(msg, 'warning');
+                triggerPushNotification("Pengingat Tugas", msg);
+            } else if (diffDays === 0) {
+                let msg = `Deadline tugas "${t.nama}" (${t.matkul}) HARI INI!`;
+                showToast(msg, 'warning');
+                triggerPushNotification("Pengingat Tugas Mendesak", msg);
+            }
+        }
+    });
+}
+setTimeout(checkDeadlineReminders, 1500);
+
+// --- PROTEKSI KEAMANAN KLIK KANAN ---
 function showSecurityModal(msg) {
     document.getElementById('security-message').textContent = msg;
     document.getElementById('security-modal').classList.add('active');
@@ -25,6 +76,7 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
+// --- ELEMEN UTAMA ---
 const formTugas = document.getElementById('task-form');
 const inputNama = document.getElementById('task-name');
 const inputMatkul = document.getElementById('task-matkul');
@@ -38,8 +90,8 @@ const btnSubmit = document.getElementById('submit-btn');
 const previewActiveList = document.getElementById('preview-active-list');
 const filterMatkulSelect = document.getElementById('filter-matkul');
 
+// --- DARK MODE ---
 const darkModeBtn = document.getElementById('dark-mode-btn');
-
 if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark-mode');
     darkModeBtn.textContent = '☀️';
@@ -58,7 +110,7 @@ darkModeBtn.addEventListener('click', function() {
 
 let dataTugas = JSON.parse(localStorage.getItem('study_planner_tasks')) || [];
 
-// TARGET UJIAN / UTS DENGAN MODAL CUSTOM
+// --- TARGET UJIAN COUNTDOWN ---
 let targetUtsDate = localStorage.getItem('uts_target_date') || "2026-10-25";
 const utsModal = document.getElementById('uts-modal');
 const modalUtsDateInput = document.getElementById('modal-uts-date');
@@ -84,27 +136,123 @@ document.getElementById('save-uts-date').addEventListener('click', () => {
     }
 });
 
-// Perhitungan Sisa Hari yang Akurat (Format Mahasiswa: H-X atau Hari Lagi)
 function updateCountdown() {
     const targetDate = new Date(targetUtsDate + "T00:00:00");
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Normalisasi ke awal hari
+    today.setHours(0, 0, 0, 0);
     
     const diffTime = targetDate - today;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     const timerElement = document.getElementById('countdown-timer');
+    if (!timerElement) return;
 
     if (diffDays > 0) {
         timerElement.textContent = `H - ${diffDays} (${diffDays} Hari Lagi)`;
     } else if (diffDays === 0) {
         timerElement.textContent = `🔥 Ujian Berlangsung Hari Ini!`;
     } else {
-        timerElement.textContent = `⚠️ Ujian Telah Lewat (${Math.abs(diffDays)} Hari yang lalu)`;
+        timerElement.textContent = `⚠️ Ujian Telah Lewat (${Math.abs(diffDays)} Hari)`;
     }
 }
 updateCountdown();
 
+// --- FITUR NO.1: LOGIKA KALENDER BULANAN ---
+let currentCalendarDate = new Date();
+
+function renderCalendar() {
+    const calendarGrid = document.getElementById('calendar-grid');
+    const monthYearTitle = document.getElementById('calendar-month-year');
+    if (!calendarGrid || !monthYearTitle) return;
+
+    calendarGrid.innerHTML = "";
+
+    const year = currentCalendarDate.getFullYear();
+    const month = currentCalendarDate.getMonth();
+
+    const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    monthYearTitle.textContent = `${monthNames[month]} ${year}`;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const totalDays = new Date(year, month + 1, 0).getDate();
+
+    // Hari kosong awal bulan
+    for (let i = 0; i < firstDay; i++) {
+        let emptyCell = document.createElement('div');
+        emptyCell.className = 'calendar-day empty';
+        calendarGrid.appendChild(emptyCell);
+    }
+
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    // Grid tanggal
+    for (let day = 1; day <= totalDays; day++) {
+        let dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        let dayCell = document.createElement('div');
+        dayCell.className = `calendar-day ${dateStr === todayStr ? 'today' : ''}`;
+        
+        let dayNum = document.createElement('div');
+        dayNum.className = 'calendar-day-number';
+        dayNum.textContent = day;
+        dayCell.appendChild(dayNum);
+
+        // Cek tugas pada tanggal ini
+        let dayTasks = dataTugas.filter(t => t.deadline === dateStr && !t.isCompleted);
+        if (dayTasks.length > 0) {
+            let dotsContainer = document.createElement('div');
+            dotsContainer.className = 'calendar-dots';
+            dayTasks.forEach(t => {
+                let dot = document.createElement('span');
+                dot.className = `task-dot ${t.prioritas === 'Mendesak' ? 'mendesak' : ''}`;
+                dotsContainer.appendChild(dot);
+            });
+            dayCell.appendChild(dotsContainer);
+        }
+
+        dayCell.addEventListener('click', () => showCalendarDayTasks(dateStr, day, monthNames[month], year));
+        calendarGrid.appendChild(dayCell);
+    }
+}
+
+function showCalendarDayTasks(dateStr, day, monthName, year) {
+    const title = document.getElementById('selected-date-title');
+    const taskList = document.getElementById('selected-date-tasks');
+    if (!title || !taskList) return;
+
+    title.textContent = `Tugas pada ${day} ${monthName} ${year}`;
+    taskList.innerHTML = "";
+
+    let dayTasks = dataTugas.filter(t => t.deadline === dateStr);
+    if (dayTasks.length === 0) {
+        taskList.innerHTML = `<li class="empty-state">Tidak ada deadline tugas di tanggal ini.</li>`;
+        return;
+    }
+
+    dayTasks.forEach(t => {
+        let li = document.createElement('li');
+        li.className = 'preview-item';
+        li.innerHTML = `
+            <div>
+                <div class="preview-item-title">${t.nama} ${t.isCompleted ? '✅' : ''}</div>
+                <div class="preview-item-sub">📖 ${t.matkul} (${t.prioritas})</div>
+            </div>
+            <div class="preview-item-date">⏰ ${t.deadline}</div>
+        `;
+        taskList.appendChild(li);
+    });
+}
+
+document.getElementById('prev-month-btn').addEventListener('click', () => {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+    renderCalendar();
+});
+
+document.getElementById('next-month-btn').addEventListener('click', () => {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+    renderCalendar();
+});
+
+// --- MANAJEMEN TUGAS ---
 function updateMatkulFilterOptions() {
     let currentVal = filterMatkulSelect.value;
     let matkulList = [...new Set(dataTugas.map(t => t.matkul))];
@@ -145,10 +293,12 @@ formTugas.addEventListener('submit', function(e) {
 
         if (indexEdit === "" || indexEdit < 0) {
             dataTugas.push(taskObj);
+            showToast(`Tugas "${nama}" berhasil disimpan!`);
         } else {
             dataTugas[indexEdit] = taskObj;
             inputEditIndex.value = "";
             btnSubmit.textContent = "Simpan Tugas";
+            showToast(`Tugas "${nama}" diperbarui!`);
         }
 
         simpanDanTampilkan();
@@ -171,6 +321,7 @@ function simpanDanTampilkan() {
     localStorage.setItem('study_planner_tasks', JSON.stringify(dataTugas));
     updateMatkulFilterOptions();
     tampilkanTugas();
+    renderCalendar();
 }
 
 window.toggleSelesai = function(idx) {
@@ -195,13 +346,8 @@ function tampilkanTugas() {
 
     filteredData.forEach((item) => {
         let realIdx = dataTugas.indexOf(item);
-        let warnaBadge = 'badge-biasa';
-        if (item.prioritas === 'Santai') warnaBadge = 'badge-santai';
-        if (item.prioritas === 'Mendesak') warnaBadge = 'badge-mendesak';
-        
         let statusBadgeText = item.prioritas;
         if (item.isCompleted) {
-            warnaBadge = 'badge-completed';
             statusBadgeText = '✅ Selesai';
         }
 
@@ -213,7 +359,7 @@ function tampilkanTugas() {
                     <span class="task-title">${item.nama}</span>
                     <div class="task-matkul">📖 ${item.matkul}</div>
                 </div>
-                <span class="badge ${warnaBadge}">${statusBadgeText}</span>
+                <span style="font-size: 0.8rem; font-weight: 600; color: #6366f1;">${statusBadgeText}</span>
             </div>
             ${item.catatan ? `<div class="task-notes">Catatan: "${item.catatan}"</div>` : ''}
             ${item.fileName ? `<div style="margin-top: 4px;"><a href="${item.fileData}" download="${item.fileName}" class="task-file-link">📎 Lampiran: ${item.fileName}</a></div>` : ''}
@@ -230,11 +376,7 @@ function tampilkanTugas() {
     });
 
     previewActiveList.innerHTML = "";
-    let tugasKuliahAktif = dataTugas.filter(t => {
-        let m = t.matkul.toLowerCase();
-        let n = t.nama.toLowerCase();
-        return !t.isCompleted && !m.includes('project') && !m.includes('pribadi') && !n.includes('project');
-    });
+    let tugasKuliahAktif = dataTugas.filter(t => !t.isCompleted);
 
     if (tugasKuliahAktif.length > 0) {
         tugasKuliahAktif.forEach(t => {
@@ -404,27 +546,6 @@ document.getElementById('ambient-cafe').addEventListener('click', () => {
     if (isCafeActive) stopLofiMusic(); else playLofiChill('cafe');
 });
 
-function bunyiAlarm() {
-    try {
-        let ctx = new (window.AudioContext || window.webkitAudioContext)();
-        for (let i = 0; i < 4; i++) {
-            let baseTime = ctx.currentTime + (i * 0.6);
-            [0, 0.15, 0.3].forEach((delay, index) => {
-                let osc = ctx.createOscillator();
-                let gain = ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(index === 2 ? 880 : 587.33, baseTime + delay);
-                gain.gain.setValueAtTime(0.2, baseTime + delay);
-                gain.gain.exponentialRampToValueAtTime(0.001, baseTime + delay + 0.12);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start(baseTime + delay);
-                osc.stop(baseTime + delay + 0.12);
-            });
-        }
-    } catch (err) {}
-}
-
 function updateTampilanTimer() {
     if (document.activeElement === tampilanTimer) return; 
     let m = Math.floor(sisaWaktu / 60);
@@ -447,7 +568,7 @@ tampilanTimer.addEventListener('blur', function() {
             return;
         }
     }
-    alert("Format salah bro! Pake format MM:SS (Contoh: 30:00)");
+    alert("Format salah! Pake format MM:SS (Contoh: 30:00)");
     updateTampilanTimer();
 });
 
@@ -465,7 +586,6 @@ btnMulai.addEventListener('click', function() {
             intervalTimer = null;
             sisaWaktu = 0;
             updateTampilanTimer();
-            bunyiAlarm();
             stopLofiMusic();
             alert("Waktu fokus selesai! Mantap, waktunya istirahat ☕.");
             return;
@@ -486,6 +606,8 @@ btnReset.addEventListener('click', function() {
     updateTampilanTimer();
 });
 
+// Inisialisasi
 updateMatkulFilterOptions();
 tampilkanTugas();
+renderCalendar();
 updateTampilanTimer();

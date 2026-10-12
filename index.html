@@ -10,6 +10,9 @@
 </head>
 <body>
 
+    <!-- Container Toast Notification -->
+    <div id="toast-container" class="toast-container"></div>
+
     <!-- Header navigasi utama -->
     <header>
         <div class="logo">
@@ -21,7 +24,7 @@
         <nav>
             <ul>
                 <li><a href="#beranda" class="active">Beranda</a></li>
-                <li><a href="#fitur">Fitur</a></li>
+                <li><a href="#kalender">Kalender</a></li>
                 <li><a href="#demo">Catat Tugas</a></li>
                 <li><a href="#pomodoro">Timer Fokus</a></li>
                 <li><a href="#tentang">Tentang</a></li>
@@ -47,7 +50,7 @@
 
             <div class="hero-buttons">
                 <a href="#demo" class="btn primary">Mulai Catat Tugas</a>
-                <a href="#pomodoro" class="btn secondary">Coba Timer Fokus</a>
+                <a href="#kalender" class="btn secondary">Lihat Kalender</a>
             </div>
         </div>
         <div class="hero-image">
@@ -60,7 +63,7 @@
         </div>
     </section>
 
-    <!-- Modal Custom untuk Ubah Tanggal UTS (Bersih & Elegan) -->
+    <!-- Modal Custom untuk Ubah Tanggal UTS -->
     <div class="modal-overlay" id="uts-modal">
         <div class="modal-card">
             <h3>Atur Tanggal Ujian / UTS</h3>
@@ -86,24 +89,32 @@
         </div>
     </div>
 
-    <section id="fitur" class="features">
-        <h2>Kenapa Pakai Web Ini?</h2>
-        <div class="feature-grid">
-            <div class="feature-card">
-                <h3>⚡ Simpel & Cepat</h3>
-                <p>Nggak pake ribet bikin akun, tinggal buka langsung catat tugas.</p>
+    <!-- FITUR NO.1: TAMPILAN KALENDER BULANAN -->
+    <section id="kalender" class="calendar-section">
+        <h2>Kalender Tugas Bulanan</h2>
+        <p>Pantau persebaran deadline tugas kuliahmu secara visual dalam bentuk kalender:</p>
+        
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <button id="prev-month-btn" class="btn secondary">&lt;</button>
+                <h3 id="calendar-month-year">Oktober 2026</h3>
+                <button id="next-month-btn" class="btn secondary">&gt;</button>
             </div>
-            <div class="feature-card">
-                <h3>🎯 Filter Matkul & Prioritas</h3>
-                <p>Filter tugas berdasarkan mata kuliah dan tingkat urgensi.</p>
+            <div class="calendar-days-header">
+                <div>Ming</div><div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div>
             </div>
-            <div class="feature-card">
-                <h3>⏱️ Timer Fokus & Lofi Audio</h3>
-                <p>Dilengkapi Pomodoro timer dan musik chill lofi untuk coding/nugas.</p>
+            <div id="calendar-grid" class="calendar-grid"></div>
+            
+            <div id="calendar-day-details" class="calendar-day-details">
+                <h4 id="selected-date-title">Tugas pada tanggal terpilih</h4>
+                <ul id="selected-date-tasks" class="calendar-task-list">
+                    <li class="empty-state">Klik salah satu tanggal pada kalender untuk melihat tugas.</li>
+                </ul>
             </div>
         </div>
     </section>
 
+    <!-- Section Input Tugas -->
     <section id="demo" class="demo-section">
         <h2>Input Tugas Kuliah & Lampiran</h2>
         <p>Catat tugas, kuis, atau laporan praktikum kamu di sini agar tidak lupa:</p>
@@ -195,7 +206,7 @@
     <section id="tentang" class="about">
         <h2>Tentang Study Planner</h2>
         <div class="about-content">
-            <p><strong>Study Planner</strong> adalah aplikasi web manajemen tugas kuliah dan produktivitas yang dirancang khusus untuk membantu mahasiswa mengelola jadwal secara efektif, lengkap dengan fitur backup data dan timer fokus.</p>
+            <p><strong>Study Planner</strong> adalah aplikasi web manajemen tugas kuliah dan produktivitas yang dirancang khusus untuk membantu mahasiswa mengelola jadwal secara efektif, lengkap dengan fitur kalender bulanan, pengingat notifikasi, backup data, dan timer fokus.</p>
         </div>
     </section>
 
