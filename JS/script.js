@@ -1,7 +1,7 @@
-// Proteksi dasar: Mencegah klik kanan & shortcut copy dengan teks profesional
+// Proteksi Dasar & Keamanan Kode
 document.addEventListener('contextmenu', function(e) {
     e.preventDefault();
-    alert("Protected Content: Hak cipta dilindungi undang-undang.");
+    alert("Protected Content: Hayo mau ngapain anda");
 });
 
 document.addEventListener('keydown', function(e) {
@@ -22,12 +22,12 @@ const inputMatkul = document.getElementById('task-matkul');
 const selectPrioritas = document.getElementById('task-priority');
 const inputDeadline = document.getElementById('task-date');
 const inputCatatan = document.getElementById('task-notes');
+const inputFile = document.getElementById('task-file');
 const listTugas = document.getElementById('task-list');
 const inputEditIndex = document.getElementById('task-edit-index');
 const btnSubmit = document.getElementById('submit-btn');
-const prevTask = document.getElementById('preview-task');
-const prevMatkul = document.getElementById('preview-matkul');
-const prevPriority = document.getElementById('preview-priority');
+const previewActiveList = document.getElementById('preview-active-list');
+const filterMatkulSelect = document.getElementById('filter-matkul');
 
 const darkModeBtn = document.getElementById('dark-mode-btn');
 
@@ -47,10 +47,61 @@ darkModeBtn.addEventListener('click', function() {
     }
 });
 
-// Array buat nampung data tugas sementara
-let dataTugas = [];
+// Load data tugas dari LocalStorage
+let dataTugas = JSON.parse(localStorage.getItem('study_planner_tasks')) || [];
 
-// Handle submit form (tambah atau update data)
+let targetUtsDate = localStorage.getItem('uts_target_date') || "2026-10-25";
+
+document.getElementById('edit-uts-btn').addEventListener('click', () => {
+    let inputBaru = prompt("Masukkan tanggal target Ujian/UTS (Format: YYYY-MM-DD):", targetUtsDate);
+    if (inputBaru) {
+        let parsed = Date.parse(inputBaru);
+        if (!isNaN(parsed)) {
+            targetUtsDate = inputBaru;
+            localStorage.setItem('uts_target_date', targetUtsDate);
+            updateCountdown();
+            alert("Tanggal ujian berhasil diperbarui!");
+        } else {
+            alert("Format tanggal salah! Gunakan format YYYY-MM-DD (Contoh: 2026-10-25)");
+        }
+    }
+});
+
+function updateCountdown() {
+    const targetDate = new Date(targetUtsDate + "T00:00:00");
+    const now = new Date();
+    const diff = targetDate - now;
+
+    if (diff <= 0) {
+        document.getElementById('countdown-timer').textContent = "Ujian Sedang Berlangsung!";
+        return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+    document.getElementById('countdown-timer').textContent = `${days} hari ${hours} jam ${minutes} mnt`;
+}
+setInterval(updateCountdown, 1000);
+updateCountdown();
+
+function updateMatkulFilterOptions() {
+    let currentVal = filterMatkulSelect.value;
+    let matkulList = [...new Set(dataTugas.map(t => t.matkul))];
+    
+    filterMatkulSelect.innerHTML = `<option value="all">Semua Matkul</option>`;
+    matkulList.forEach(m => {
+        let opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = m;
+        filterMatkulSelect.appendChild(opt);
+    });
+    filterMatkulSelect.value = matkulList.includes(currentVal) ? currentVal : 'all';
+}
+
+filterMatkulSelect.addEventListener('change', () => tampilkanTugas());
+
 formTugas.addEventListener('submit', function(e) {
     e.preventDefault();
 
@@ -61,39 +112,70 @@ formTugas.addEventListener('submit', function(e) {
     let catatan = inputCatatan.value.trim();
     let indexEdit = inputEditIndex.value;
 
-    if (indexEdit === "" || indexEdit < 0) {
-        dataTugas.push({ nama, matkul, prioritas, deadline, catatan, isCompleted: false });
-    } else {
-        dataTugas[indexEdit] = { ...dataTugas[indexEdit], nama, matkul, prioritas, deadline, catatan };
-        inputEditIndex.value = "";
-        btnSubmit.textContent = "Simpan Tugas";
-    }
+    let processTaskData = (fileName = null, fileData = null) => {
+        let taskObj = {
+            nama,
+            matkul,
+            prioritas,
+            deadline,
+            catatan,
+            fileName: fileName || (indexEdit !== "" ? dataTugas[indexEdit].fileName : null),
+            fileData: fileData || (indexEdit !== "" ? dataTugas[indexEdit].fileData : null),
+            isCompleted: indexEdit !== "" ? dataTugas[indexEdit].isCompleted : false
+        };
 
-    tampilkanTugas();
-    formTugas.reset();
+        if (indexEdit === "" || indexEdit < 0) {
+            dataTugas.push(taskObj);
+        } else {
+            dataTugas[indexEdit] = taskObj;
+            inputEditIndex.value = "";
+            btnSubmit.textContent = "Simpan Tugas";
+        }
+
+        simpanDanTampilkan();
+        formTugas.reset();
+    };
+
+    if (inputFile.files && inputFile.files[0]) {
+        let reader = new FileReader();
+        let uploadedFile = inputFile.files[0];
+        reader.onload = function (uploadEvent) {
+            processTaskData(uploadedFile.name, uploadEvent.target.result);
+        };
+        reader.readAsDataURL(uploadedFile);
+    } else {
+        processTaskData();
+    }
 });
+
+function simpanDanTampilkan() {
+    localStorage.setItem('study_planner_tasks', JSON.stringify(dataTugas));
+    updateMatkulFilterOptions();
+    tampilkanTugas();
+}
 
 window.toggleSelesai = function(idx) {
     if (dataTugas[idx]) {
         dataTugas[idx].isCompleted = !dataTugas[idx].isCompleted;
-        tampilkanTugas();
+        simpanDanTampilkan();
     }
 }
 
-// Fungsi buat ngerender list tugas ke DOM
 function tampilkanTugas() {
     listTugas.innerHTML = "";
+    let selectedMatkul = filterMatkulSelect.value;
 
-    if (dataTugas.length === 0) {
-        listTugas.innerHTML = `<li class="empty-state">Belum ada tugas tercatat. Yuk mulai masukkan tugasmu!</li>`;
-        prevTask.textContent = "Belum ada tugas yang dicatat.";
-        prevMatkul.textContent = "Matkul: -";
-        prevPriority.textContent = "Prioritas: -";
-        prevPriority.className = "badge";
-        return;
+    let filteredData = dataTugas.filter(item => {
+        if (selectedMatkul === 'all') return true;
+        return item.matkul === selectedMatkul;
+    });
+
+    if (filteredData.length === 0) {
+        listTugas.innerHTML = `<li class="empty-state">Tidak ada tugas untuk kategori ini.</li>`;
     }
 
-    dataTugas.forEach((item, idx) => {
+    filteredData.forEach((item) => {
+        let realIdx = dataTugas.indexOf(item);
         let warnaBadge = 'badge-biasa';
         if (item.prioritas === 'Santai') warnaBadge = 'badge-santai';
         if (item.prioritas === 'Mendesak') warnaBadge = 'badge-mendesak';
@@ -115,34 +197,43 @@ function tampilkanTugas() {
                 <span class="badge ${warnaBadge}">${statusBadgeText}</span>
             </div>
             ${item.catatan ? `<div class="task-notes">Catatan: "${item.catatan}"</div>` : ''}
+            ${item.fileName ? `<div style="margin-top: 4px;"><a href="${item.fileData}" download="${item.fileName}" class="task-file-link">📎 Lampiran: ${item.fileName}</a></div>` : ''}
             <div class="task-footer-item">
                 <span class="task-date">⏰ Deadline: ${item.deadline}</span>
                 <div class="task-actions">
-                    <button type="button" class="complete-btn" onclick="toggleSelesai(${idx})">${item.isCompleted ? 'Batal' : 'Selesai'}</button>
-                    <button type="button" class="edit-btn" onclick="editTugas(${idx})">Edit</button>
-                    <button type="button" class="delete-btn" onclick="hapusTugas(${idx})">Hapus</button>
+                    <button type="button" class="complete-btn" onclick="toggleSelesai(${realIdx})">${item.isCompleted ? 'Batal' : 'Selesai'}</button>
+                    <button type="button" class="edit-btn" onclick="editTugas(${realIdx})">Edit</button>
+                    <button type="button" class="delete-btn" onclick="hapusTugas(${realIdx})">Hapus</button>
                 </div>
             </div>
         `;
         listTugas.appendChild(li);
     });
 
-    let terakhir = dataTugas[dataTugas.length - 1];
-    let badgeTerakhir = 'badge-biasa';
-    let labelTerakhir = terakhir.prioritas;
+    // RENDER SEMUA TUGAS KULIAH KE CARD PREVIEW DI HERO (DENGAN SCROLL)
+    previewActiveList.innerHTML = "";
+    let tugasKuliahAktif = dataTugas.filter(t => {
+        let m = t.matkul.toLowerCase();
+        let n = t.nama.toLowerCase();
+        return !t.isCompleted && !m.includes('project') && !m.includes('pribadi') && !n.includes('project');
+    });
 
-    if (terakhir.isCompleted) {
-        badgeTerakhir = 'badge-completed';
-        labelTerakhir = '✅ Selesai';
+    if (tugasKuliahAktif.length > 0) {
+        tugasKuliahAktif.forEach(t => {
+            let itemDiv = document.createElement('div');
+            itemDiv.className = 'preview-item';
+            itemDiv.innerHTML = `
+                <div>
+                    <div class="preview-item-title">${t.nama}</div>
+                    <div class="preview-item-sub">📖 ${t.matkul}</div>
+                </div>
+                <div class="preview-item-date">⏳ ${t.deadline}</div>
+            `;
+            previewActiveList.appendChild(itemDiv);
+        });
     } else {
-        if (terakhir.prioritas === 'Santai') badgeTerakhir = 'badge-santai';
-        if (terakhir.prioritas === 'Mendesak') badgeTerakhir = 'badge-mendesak';
+        previewActiveList.innerHTML = `<p class="preview-empty">Semua tugas kuliah aman! Belum ada deadline mendesak.</p>`;
     }
-
-    prevTask.textContent = terakhir.nama;
-    prevMatkul.textContent = `Matkul: ${terakhir.matkul}`;
-    prevPriority.textContent = `Status: ${labelTerakhir}`;
-    prevPriority.className = `badge ${badgeTerakhir}`;
 }
 
 window.editTugas = function(idx) {
@@ -168,10 +259,41 @@ window.hapusTugas = function(idx) {
         btnSubmit.textContent = "Simpan Tugas";
         formTugas.reset();
     }
-    tampilkanTugas();
+    simpanDanTampilkan();
 }
 
-/* TIMER POMODORO */
+// EXPORT & IMPORT JSON
+document.getElementById('export-btn').addEventListener('click', () => {
+    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataTugas, null, 2));
+    let downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", "study_planner_backup.json");
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+});
+
+document.getElementById('import-file').addEventListener('change', (e) => {
+    let fileReader = new FileReader();
+    if (e.target.files[0]) {
+        fileReader.readAsText(e.target.files[0], "UTF-8");
+        fileReader.onload = (event) => {
+            try {
+                let imported = JSON.parse(event.target.result);
+                if (Array.isArray(imported)) {
+                    dataTugas = imported;
+                    simpanDanTampilkan();
+                    alert("Data tugas berhasil diimpor!");
+                } else {
+                    alert("Format file JSON tidak valid.");
+                }
+            } catch (err) {
+                alert("Gagal membaca file JSON.");
+            }
+        };
+    }
+});
+
 let defaultDetik = 25 * 60; 
 let sisaWaktu = defaultDetik; 
 let intervalTimer = null;
@@ -182,49 +304,111 @@ const btnMulai = document.getElementById('start-timer');
 const btnJeda = document.getElementById('pause-timer');
 const btnReset = document.getElementById('reset-timer');
 
-if (window.Notification && Notification.permission !== "granted") {
-    Notification.requestPermission();
+let audioCtx = null;
+let lofiInterval = null;
+let isRainActive = false;
+let isCafeActive = false;
+
+function stopLofiMusic() {
+    if (lofiInterval) {
+        clearInterval(lofiInterval);
+        lofiInterval = null;
+    }
+    if (audioCtx && audioCtx.state !== 'closed') {
+        audioCtx.close();
+        audioCtx = null;
+    }
+    document.getElementById('ambient-rain').classList.remove('active');
+    document.getElementById('ambient-cafe').classList.remove('active');
+    isRainActive = false;
+    isCafeActive = false;
 }
+
+function playLofiChill(type) {
+    stopLofiMusic();
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    const chords = [
+        [220.00, 261.63, 329.63, 392.00], 
+        [174.61, 220.00, 261.63, 329.63], 
+        [130.81, 164.81, 196.00, 246.94], 
+        [196.00, 246.94, 293.66, 349.23]  
+    ];
+    
+    let chordIndex = 0;
+
+    function playChord(chordFreqs) {
+        if (!audioCtx) return;
+        chordFreqs.forEach((freq) => {
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            let filter = audioCtx.createBiquadFilter();
+
+            osc.type = type === 'rain' ? 'sine' : 'triangle'; 
+            osc.frequency.setValueAtTime(freq / (type === 'rain' ? 1 : 2), audioCtx.currentTime);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(350, audioCtx.currentTime);
+
+            gain.gain.setValueAtTime(0.0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.025, audioCtx.currentTime + 1.2); 
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 4.0); 
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 4.0);
+        });
+    }
+
+    playChord(chords[0]);
+    lofiInterval = setInterval(() => {
+        chordIndex = (chordIndex + 1) % chords.length;
+        playChord(chords[chordIndex]);
+    }, 4000);
+
+    if (type === 'rain') {
+        isRainActive = true;
+        document.getElementById('ambient-rain').classList.add('active');
+    } else {
+        isCafeActive = true;
+        document.getElementById('ambient-cafe').classList.add('active');
+    }
+}
+
+document.getElementById('ambient-rain').addEventListener('click', () => {
+    if (isRainActive) stopLofiMusic(); else playLofiChill('rain');
+});
+
+document.getElementById('ambient-cafe').addEventListener('click', () => {
+    if (isCafeActive) stopLofiMusic(); else playLofiChill('cafe');
+});
 
 function bunyiAlarm() {
     try {
         let ctx = new (window.AudioContext || window.webkitAudioContext)();
-        
-        function putarAlarmPanjang(waktuMulai) {
-            for (let i = 0; i < 4; i++) {
-                let baseTime = waktuMulai + (i * 0.6);
-
-                [0, 0.15, 0.3].forEach((delay, index) => {
-                    let osc = ctx.createOscillator();
-                    let gain = ctx.createGain();
-                    
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(index === 2 ? 880 : 587.33, baseTime + delay); 
-                    
-                    gain.gain.setValueAtTime(0.2, baseTime + delay);
-                    gain.gain.exponentialRampToValueAtTime(0.001, baseTime + delay + 0.12);
-                    
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    
-                    osc.start(baseTime + delay);
-                    osc.stop(baseTime + delay + 0.12);
-                });
-            }
+        for (let i = 0; i < 4; i++) {
+            let baseTime = ctx.currentTime + (i * 0.6);
+            [0, 0.15, 0.3].forEach((delay, index) => {
+                let osc = ctx.createOscillator();
+                let gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(index === 2 ? 880 : 587.33, baseTime + delay);
+                gain.gain.setValueAtTime(0.2, baseTime + delay);
+                gain.gain.exponentialRampToValueAtTime(0.001, baseTime + delay + 0.12);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start(baseTime + delay);
+                osc.stop(baseTime + delay + 0.12);
+            });
         }
-
-        let sekarang = ctx.currentTime;
-        putarAlarmPanjang(sekarang);
-        putarAlarmPanjang(sekarang + 2.8);
-
-    } catch (err) {
-        console.log("Audio diblokir browser");
-    }
+    } catch (err) {}
 }
 
 function updateTampilanTimer() {
     if (document.activeElement === tampilanTimer) return; 
-
     let m = Math.floor(sisaWaktu / 60);
     let s = sisaWaktu % 60;
     tampilanTimer.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
@@ -233,36 +417,24 @@ function updateTampilanTimer() {
 tampilanTimer.addEventListener('blur', function() {
     let teks = tampilanTimer.textContent.trim();
     let bagian = teks.split(':');
-    
     if (bagian.length === 2) {
         let m = parseInt(bagian[0]);
         let s = parseInt(bagian[1]);
-
         if (!isNaN(m) && !isNaN(s) && m >= 0 && s >= 0 && s < 60) {
             clearInterval(intervalTimer);
             intervalTimer = null;
-            
             defaultDetik = (m * 60) + s;
             sisaWaktu = defaultDetik;
             updateTampilanTimer();
             return;
         }
     }
-    
     alert("Format salah bro! Pake format MM:SS (Contoh: 30:00)");
     updateTampilanTimer();
 });
 
-tampilanTimer.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        tampilanTimer.blur();
-    }
-});
-
 btnMulai.addEventListener('click', function() {
     if (intervalTimer) return; 
-
     tampilanTimer.blur();
     waktuTarget = Date.now() + sisaWaktu * 1000;
 
@@ -275,19 +447,11 @@ btnMulai.addEventListener('click', function() {
             intervalTimer = null;
             sisaWaktu = 0;
             updateTampilanTimer();
-            
             bunyiAlarm();
-
-            if (window.Notification && Notification.permission === "granted") {
-                new Notification("Waktu Fokus Selesai! 🎉", {
-                    body: "Mantap! Waktunya istirahat sejenak ☕.",
-                });
-            } else {
-                alert("Waktu fokus selesai! Mantap, waktunya istirahat ☕.");
-            }
+            stopLofiMusic();
+            alert("Waktu fokus selesai! Mantap, waktunya istirahat ☕.");
             return;
         }
-
         updateTampilanTimer();
     }, 1000);
 });
@@ -304,4 +468,6 @@ btnReset.addEventListener('click', function() {
     updateTampilanTimer();
 });
 
+updateMatkulFilterOptions();
+tampilkanTugas();
 updateTampilanTimer();

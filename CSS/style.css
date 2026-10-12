@@ -173,34 +173,65 @@ body.dark-mode .btn.secondary {
     border-radius: 16px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 350px;
+    max-width: 380px;
     border: 1px solid var(--border-color);
 }
 
-.card-preview h3 { margin-bottom: 10px; color: var(--text-main); }
-.card-preview p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 15px; }
+.card-preview h3 { margin-bottom: 12px; color: var(--text-main); font-size: 1.1rem; }
 
-.preview-info {
+/* Container Scrollable untuk Reminder */
+.preview-active-container {
+    max-height: 240px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-right: 4px;
+}
+
+.preview-active-container::-webkit-scrollbar {
+    width: 5px;
+}
+
+.preview-active-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.preview-empty {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 15px 0;
+}
+
+.preview-item {
+    background: var(--bg-main);
+    border: 1px solid var(--border-color);
+    padding: 10px 12px;
+    border-radius: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid var(--border-color);
-    padding-top: 12px;
-    font-size: 0.85rem;
-    color: var(--text-muted);
 }
 
-.badge {
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.75rem;
+.preview-item-title {
+    font-size: 0.9rem;
     font-weight: 600;
+    color: var(--text-main);
 }
 
-.badge-santai { background: #dcfce7; color: #15803d; }
-.badge-biasa { background: #e0e7ff; color: #3730a3; }
-.badge-mendesak { background: #fee2e2; color: #991b1b; }
-.badge-completed { background: #10b981; color: #ffffff; }
+.preview-item-sub {
+    font-size: 0.75rem;
+    color: #6366f1;
+}
+
+.preview-item-date {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    margin-left: 8px;
+}
 
 .features {
     padding: 70px 8%;
@@ -286,6 +317,12 @@ body.dark-mode .btn.secondary {
     transition: border-color 0.2s;
 }
 
+.file-input {
+    padding: 8px !important;
+    font-size: 0.85rem !important;
+    cursor: pointer;
+}
+
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
     border-color: #6366f1;
 }
@@ -324,7 +361,6 @@ body.dark-mode .btn.secondary {
     transition: all 0.3s ease;
 }
 
-/* Styling saat tugas selesai */
 .task-item.task-completed {
     opacity: 0.65;
     background: rgba(16, 185, 129, 0.05);
@@ -340,6 +376,8 @@ body.dark-mode .btn.secondary {
 .task-title { font-weight: 600; color: var(--text-main); }
 .task-matkul { font-size: 0.85rem; color: #6366f1; font-weight: 500; }
 .task-notes { font-size: 0.8rem; color: var(--text-muted); background: var(--bg-card); padding: 6px 10px; border-radius: 6px; font-style: italic; }
+.task-file-link { font-size: 0.8rem; color: #6366f1; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; font-weight: 500; }
+.task-file-link:hover { text-decoration: underline; }
 
 .task-footer-item { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
 .task-date { font-size: 0.75rem; color: var(--text-muted); }
@@ -351,7 +389,6 @@ body.dark-mode .btn.secondary {
 
 .empty-state { text-align: center; color: var(--text-muted); font-size: 0.9rem; padding: 30px 0; }
 
-/* Pomodoro section */
 .pomodoro-section { padding: 80px 8%; background: var(--bg-main); text-align: center; }
 .pomodoro-section p { color: var(--text-muted); margin-bottom: 30px; }
 
@@ -386,6 +423,103 @@ body.dark-mode .btn.secondary {
 
 .timer-controls { display: flex; justify-content: center; gap: 10px; }
 
+/* Styling Target Ujian & Card Preview */
+.exam-countdown-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 12px 18px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    max-width: 420px;
+}
+
+.exam-info-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.exam-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.exam-timer {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #6366f1;
+}
+
+.btn-edit-date {
+    background: #e0e7ff;
+    color: #3730a3;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-edit-date:hover {
+    background: #c7d2fe;
+}
+
+.task-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.filter-select {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-card);
+    color: var(--text-main);
+    font-size: 0.85rem;
+    outline: none;
+}
+
+.backup-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 15px;
+}
+
+.ambient-controls {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.btn-ambient {
+    background: var(--bg-main);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-ambient.active {
+    background: #6366f1;
+    color: white;
+    border-color: #6366f1;
+}
+
 /* About & footer */
 .about { padding: 70px 8%; background: var(--bg-card); text-align: center; }
 .about-content { max-width: 700px; margin: 0 auto; font-size: 1.05rem; color: var(--text-muted); }
@@ -397,4 +531,5 @@ footer { padding: 25px; text-align: center; background: var(--footer-bg); color:
     .hero-buttons { justify-content: center; }
     .task-container { grid-template-columns: 1fr; }
     nav ul { display: none; }
+    .exam-countdown-box { max-width: 100%; }
 }
