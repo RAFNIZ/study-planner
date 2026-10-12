@@ -58,6 +58,7 @@ darkModeBtn.addEventListener('click', function() {
 
 let dataTugas = JSON.parse(localStorage.getItem('study_planner_tasks')) || [];
 
+// TARGET UJIAN / UTS DENGAN MODAL CUSTOM
 let targetUtsDate = localStorage.getItem('uts_target_date') || "2026-10-25";
 const utsModal = document.getElementById('uts-modal');
 const modalUtsDateInput = document.getElementById('modal-uts-date');
@@ -83,23 +84,25 @@ document.getElementById('save-uts-date').addEventListener('click', () => {
     }
 });
 
+// Perhitungan Sisa Hari yang Akurat (Format Mahasiswa: H-X atau Hari Lagi)
 function updateCountdown() {
     const targetDate = new Date(targetUtsDate + "T00:00:00");
-    const now = new Date();
-    const diff = targetDate - now;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Normalisasi ke awal hari
+    
+    const diffTime = targetDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diff <= 0) {
-        document.getElementById('countdown-timer').textContent = "Ujian Sedang Berlangsung!";
-        return;
+    const timerElement = document.getElementById('countdown-timer');
+
+    if (diffDays > 0) {
+        timerElement.textContent = `H - ${diffDays} (${diffDays} Hari Lagi)`;
+    } else if (diffDays === 0) {
+        timerElement.textContent = `🔥 Ujian Berlangsung Hari Ini!`;
+    } else {
+        timerElement.textContent = `⚠️ Ujian Telah Lewat (${Math.abs(diffDays)} Hari yang lalu)`;
     }
-
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-
-    document.getElementById('countdown-timer').textContent = `${days} hari ${hours} jam ${minutes} mnt`;
 }
-setInterval(updateCountdown, 1000);
 updateCountdown();
 
 function updateMatkulFilterOptions() {
@@ -308,6 +311,7 @@ document.getElementById('import-file').addEventListener('change', (e) => {
     }
 });
 
+/* TIMER POMODORO & CHILL LOFI SYNTH AUDIO */
 let defaultDetik = 25 * 60; 
 let sisaWaktu = defaultDetik; 
 let intervalTimer = null;
