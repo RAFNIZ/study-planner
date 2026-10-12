@@ -25,7 +25,7 @@ body.dark-mode {
     --text-muted: #94a3b8;
     --border-color: #334155;
     --hero-gradient: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
-    --nav-bg: #1e293b;
+    --nav-bg: #1e1b4b;
     --footer-bg: #020617;
     --footer-text: #64748b;
 }
@@ -276,7 +276,7 @@ body.dark-mode .btn.secondary { background-color: #334155; color: #f8fafc; }
 .security-card { text-align: center; }
 .security-icon { font-size: 2.5rem; margin-bottom: 10px; }
 
-/* Styling Kalender Bulanan */
+/* STYLING KALENDER BULANAN (FIXED GRID 7 KOLOM) */
 .calendar-section {
     padding: 80px 8%;
     background: var(--bg-main);
@@ -315,8 +315,8 @@ body.dark-mode .btn.secondary { background-color: #334155; color: #f8fafc; }
 }
 
 .calendar-days-header {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
     text-align: center;
     font-weight: 600;
     font-size: 0.85rem;
@@ -327,8 +327,8 @@ body.dark-mode .btn.secondary { background-color: #334155; color: #f8fafc; }
 }
 
 .calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
     gap: 8px;
 }
 

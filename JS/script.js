@@ -1,4 +1,4 @@
-// --- FITUR NO.6: PUSH NOTIFICATION & TOAST REMINDER ---
+// --- FITUR PUSH NOTIFICATION & TOAST REMINDER ---
 function showToast(message, type = 'info') {
     const container = document.getElementById('toast-container');
     if (!container) return;
@@ -14,7 +14,6 @@ function showToast(message, type = 'info') {
     }, 4500);
 }
 
-// Request Notifikasi Browser
 if ("Notification" in window && Notification.permission === "default") {
     Notification.requestPermission();
 }
@@ -49,7 +48,7 @@ function checkDeadlineReminders() {
 }
 setTimeout(checkDeadlineReminders, 1500);
 
-// --- PROTEKSI KEAMANAN KLIK KANAN ---
+// --- PROTEKSI KLIK KANAN ---
 function showSecurityModal(msg) {
     document.getElementById('security-message').textContent = msg;
     document.getElementById('security-modal').classList.add('active');
@@ -157,7 +156,7 @@ function updateCountdown() {
 }
 updateCountdown();
 
-// --- FITUR NO.1: LOGIKA KALENDER BULANAN ---
+// --- LOGIKA KALENDER BULANAN ---
 let currentCalendarDate = new Date();
 
 function renderCalendar() {
@@ -176,7 +175,6 @@ function renderCalendar() {
     const firstDay = new Date(year, month, 1).getDay();
     const totalDays = new Date(year, month + 1, 0).getDate();
 
-    // Hari kosong awal bulan
     for (let i = 0; i < firstDay; i++) {
         let emptyCell = document.createElement('div');
         emptyCell.className = 'calendar-day empty';
@@ -185,7 +183,6 @@ function renderCalendar() {
 
     const todayStr = new Date().toISOString().split('T')[0];
 
-    // Grid tanggal
     for (let day = 1; day <= totalDays; day++) {
         let dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         let dayCell = document.createElement('div');
@@ -196,7 +193,6 @@ function renderCalendar() {
         dayNum.textContent = day;
         dayCell.appendChild(dayNum);
 
-        // Cek tugas pada tanggal ini
         let dayTasks = dataTugas.filter(t => t.deadline === dateStr && !t.isCompleted);
         if (dayTasks.length > 0) {
             let dotsContainer = document.createElement('div');
@@ -453,7 +449,7 @@ document.getElementById('import-file').addEventListener('change', (e) => {
     }
 });
 
-/* TIMER POMODORO & CHILL LOFI SYNTH AUDIO */
+/* TIMER POMODORO & LOFI AUDIO */
 let defaultDetik = 25 * 60; 
 let sisaWaktu = defaultDetik; 
 let intervalTimer = null;
@@ -606,7 +602,7 @@ btnReset.addEventListener('click', function() {
     updateTampilanTimer();
 });
 
-// Inisialisasi
+// Inisialisasi awal
 updateMatkulFilterOptions();
 tampilkanTugas();
 renderCalendar();
