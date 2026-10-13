@@ -1,44 +1,76 @@
-# 📚 Study Planner - Task & Pomodoro Manager
+# 📚 Study Planner - Student Task & Pomodoro Suite
 
-> Minimalist & production-ready web application built for **UTS Pemrograman Web** — D4 Manajemen Informatika, Universitas Negeri Surabaya (UNESA).
-
----
-
-## 🚀 Live Demo & Deployment
-* **GitHub Pages:** `https://username-kamu.github.io/study-planner/` *(Replace `username-kamu` with your GitHub account)*
+> **Aplikasi Web Manajemen Tugas Kuliah, Kalender Bulanan Interaktif, & Timer Fokus Pomodoro berbasis Client-Side (Vanilla HTML5, CSS3, & JS).**
 
 ---
 
-## 🛠️ Software Requirements Specification (SRS) & Architecture
-
-### 1. Project Overview
-**Study Planner** adalah *single-page application* (SPA) lightweight yang dirancang untuk mengelola *task list* perkuliahan dan menjaga *deep work session* mahasiswa. Dikembangkan murni menggunakan **Pure Vanilla JS (ES6+)**, **HTML5**, dan **CSS3** tanpa dependensi *framework* atau *library* eksternal (zero dependency).
-
-### 2. Core Features & Technical Implementation
-* **Task CRUD & Complete Task Toggle (DOM Manipulation):**
-  * Full CRUD functionality (Create, Read, Update, Delete) untuk manajemen tugas secara dinamis.
-  * **Fitur Mark as Complete**: Tombol *toggle* status selesai yang mengubah tampilan *card* menjadi redup (*muted*), mencoret teks tugas (*strikethrough*), dan memperbarui badge status menjadi `✅ Selesai`.
-  * Conditional rendering untuk *priority badges* (`Santai`, `Biasa`, `Mendesak`) serta *reactive state update* pada komponen *Hero Preview*.
-* **Customizable Pomodoro Engine & Web Audio API:**
-  * Interval timer berbasis timestamp `Date.now()` untuk mencegah *timer drift* ketika tab di-background oleh browser.
-  * **Inline Editable Timer**: Menggunakan atribut `contenteditable` pada DOM element sehingga user bisa mengkustomisasi durasi timer secara langsung.
-  * **Synthesized Audio Alarm**: Menghasilkan sinyal audio *beep* frekuensi ganda secara programmatic via `Web Audio API` (OscillatorNode & GainNode) tanpa perlu aset `.mp3` eksternal.
-* **Persistent Dark Mode (Local Storage):**
-  * Dynamic theme switcher menggunakan CSS Custom Properties (Variables) dengan *state persistence* via `localStorage`.
-* **Client-Side Security & UI Protection:**
-  * Mencegah aksi *default context menu* (`contextmenu`) dan memblokir keyboard shortcuts devtools/copy (`F12`, `Ctrl+U`, `Cmd+Option+I`) via event listeners.
-* **Fully Responsive Layout:**
-  * Dibangun dengan arsitektur CSS Grid dan Flexbox untuk performa *cross-device rendering* yang optimal dari mobile hingga desktop.
+## 📌 Deskripsi & Latar Belakang
+**Study Planner** adalah aplikasi web produktivitas yang dirancang khusus untuk mahasiswa dalam mengelola beban tugas akademik, jadwal mata kuliah, dan tenggat waktu (deadline) ujian / UTS. Aplikasi ini dibangun full *client-side* menggunakan teknologi web standar tanpa bergantung pada server backend, memanfaatkan fitur `localStorage` browser untuk penyimpanan data secara lokal dan permanen.
 
 ---
 
-## 📂 Repository Structure
+## 🚀 Fitur Utama & Fungsionalitas
+1. **Target Uts Countdown Widget**
+   - Widget *countdown* interaktif di beranda untuk memantau sisa hari menuju jadwal ujian/UTS.
+   - Menggunakan *Custom Modal Overlay* untuk mengubah tanggal target ujian secara dinamis.
+2. **Manajemen Tugas Kuliah (Task Hub)**
+   - Input tugas dengan atribut nama, mata kuliah, prioritas (*Santai, Biasa, Mendesak*), dan tanggal deadline.
+   - Fitur unggah lampiran file (*PDF, DOCX, Gambar, dll.*) yang dikonversi ke format *Base64*.
+   - Filter tugas berdasarkan mata kuliah dan status penyelesaian (*Selesai / Belum*).
+3. **Kalender Bulanan Interaktif (Calendar View)**
+   - Tampilan visual kisi 7 kolom (Minggu - Sabtu) yang memetakan deadline tugas secara real-time.
+   - Penanda titik (*status dot*) berwarna pada tanggal yang memiliki tugas aktif (titik merah untuk tugas *Mendesak*).
+   - Navigasi bulan/tahun dan fitur klik tanggal untuk melihat detail tugas pada hari tersebut.
+4. **Timer Fokus Pomodoro + Lofi Audio Synth**
+   - Timer fokus belajar dengan tampilan durasi yang dapat diubah langsung (*editable content*).
+   - Generator musik latar ambient (*Lofi Chords & Synth Pad*) menggunakan **Web Audio API** tanpa dependensi file audio eksternal.
+5. **Notifikasi Smart Reminder & Web Push**
+   - Sistem *Toast Notification* melayang di dalam web untuk pengingat otomatis tugas H-1 dan Hari H.
+   - Terintegrasi dengan **Browser Notification API** untuk mengirim notifikasi push langsung ke perangkat pengguna.
+6. **Portabilitas & Keamanan Data**
+   - Ekspor dan Impor data cadangan berformat `.json`.
+   - Fitur *Dark Mode* interaktif menggunakan Variabel CSS.
+   - Proteksi tingkat dasar terhadap klik kanan (*context menu*) dan shortcut *Inspect Element*.
 
-```text
-study-planner/
-├── css/
-│   └── style.css    # Design system, CSS variables, & dark mode styling
-├── js/
-│   └── script.js    # Core logic, DOM handlers, & Web Audio API synthesis
-├── index.html       # Markup semantik, Inline SVG asset, & DOM entry point
-└── README.md        # Dokumentasi proyek & spesifikasi SRS
+---
+
+## 🛠️ Spesifikasi Teknis & Arsitektur Kode
+
+### 1. Struktur HTML (`index.html`)
+- Menggunakan **Tag Semantik HTML5** (`<header>`, `<nav>`, `<section>`, `<form>`, `<footer>`) untuk aksesibilitas dan struktur dokumen yang bersih.
+- Komponen *Modal Custom* overlay untuk interaksi pengguna yang elegan (menggantikan alert kaku browser).
+
+### 2. Desain & Styling CSS (`CSS/style.css`)
+- **CSS Grid System**: Digunakan pada tata letak `.calendar-grid` (`repeat(7, 1fr)`) dan `.task-container`.
+- **Flexbox**: Digunakan untuk navigasi header, baris form, dan kartu tugas.
+- **CSS Variables (`:root`)**: Manajemen variabel warna terpusat yang memudahkan pengalihan mode terang dan gelap (`.dark-mode`).
+- **Responsive Web Design**: Menggunakan `@media (max-width: 768px)` untuk penyesuaian otomatis pada layar smartphone.
+
+### 3. Logika JavaScript (`JS/script.js`)
+- **LocalStorage & JSON Parsing**: Menggunakan `JSON.stringify()` saat menyimpan array objek tugas dan `JSON.parse()` saat membaca kembali data dari browser.
+- **Dynamic DOM Manipulation**: Pembuatan dan penghapusan elemen list serta kotak kalender secara dinamis.
+- **JavaScript Date Object**: Kalkulasi tanggal hari ini, selisih hari deadline, dan penentuan jumlah hari dalam bulan menggunakan `new Date(year, month + 1, 0).getDate()`.
+- **FileReader API**: Konversi file lampiran lokal pengguna menjadi string `DataURL` agar tersimpan secara efisien.
+
+---
+
+## 📄 Dokumen Ringkas SRS (Software Requirements Specification)
+
+### 1. Functional Requirements (Kebutuhan Fungsional)
+- **FR-01**: Sistem harus dapat menyimpan, menampilkan, mengedit, dan menghapus data tugas kuliah.
+- **FR-02**: Sistem harus merender kalender bulanan sesuai bulan/tahun aktif secara dinamis.
+- **FR-03**: Sistem harus memberikan pengingat visual (*toast/notification*) apabila terdapat tugas dengan selisih deadline ≤ 1 hari.
+- **FR-04**: Sistem harus dapat mengekspor dan mengimpor seluruh data tugas dalam format file JSON.
+- **FR-05**: Sistem harus dapat memutar sinyal frekuensi audio sintesis untuk mendampingi sesi Pomodoro.
+
+### 2. Non-Functional Requirements (Kebutuhan Non-Fungsional)
+- **NFR-01 (Performance)**: Aplikasi memuat secara instan (*lightweight*) tanpa beban query database server.
+- **NFR-02 (Usability)**: Antarmuka intuitif, mendukung mode gelap, dan responsif di layar ponsel maupun desktop.
+- **NFR-03 (Reliability)**: Data pengguna tersimpan secara permanen pada browser lokal pengguna (`localStorage`).
+
+---
+
+## 🌐 Live Demo & Deployment
+Aplikasi ini di-deploy secara permanen menggunakan **GitHub Pages** dan dapat diakses publik melalui link berikut:
+
+🔗 **Live Web**: [https://rafniz.github.io/study-planner/](https://rafniz.github.io/study-planner/)
