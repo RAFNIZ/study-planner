@@ -52,23 +52,7 @@
 - **JavaScript Date Object**: Kalkulasi tanggal hari ini, selisih hari deadline, dan penentuan jumlah hari dalam bulan menggunakan `new Date(year, month + 1, 0).getDate()`.
 - **FileReader API**: Konversi file lampiran lokal pengguna menjadi string `DataURL` agar tersimpan secara efisien.
 
----
-
-## 📄 Dokumen Ringkas SRS (Software Requirements Specification)
-
-### 1. Functional Requirements (Kebutuhan Fungsional)
-- **FR-01**: Sistem harus dapat menyimpan, menampilkan, mengedit, dan menghapus data tugas kuliah.
-- **FR-02**: Sistem harus merender kalender bulanan sesuai bulan/tahun aktif secara dinamis.
-- **FR-03**: Sistem harus memberikan pengingat visual (*toast/notification*) apabila terdapat tugas dengan selisih deadline ≤ 1 hari.
-- **FR-04**: Sistem harus dapat mengekspor dan mengimpor seluruh data tugas dalam format file JSON.
-- **FR-05**: Sistem harus dapat memutar sinyal frekuensi audio sintesis untuk mendampingi sesi Pomodoro.
-
-### 2. Non-Functional Requirements (Kebutuhan Non-Fungsional)
-- **NFR-01 (Performance)**: Aplikasi memuat secara instan (*lightweight*) tanpa beban query database server.
-- **NFR-02 (Usability)**: Antarmuka intuitif, mendukung mode gelap, dan responsif di layar ponsel maupun desktop.
-- **NFR-03 (Reliability)**: Data pengguna tersimpan secara permanen pada browser lokal pengguna (`localStorage`).
-
----
+--
 
 ## 🌐 Live Demo & Deployment
 Aplikasi ini di-deploy secara permanen menggunakan **GitHub Pages** dan dapat diakses publik melalui link berikut:
